@@ -1,5 +1,5 @@
 ---
-description: Consult Claude Opus for strategic advice. Proactive auto-call only for complex multi-step tasks (3+ steps, multi-file, architecture decisions) — once before committing, once before done. Reactive auto-call when stuck (same error 3+ times, edit-fail loop, 5+ tool calls without progress). SKIP for trivial work (single-file edits, typo fixes, obvious next steps). Manual /advise always works.
+description: Consult Claude Opus for strategic advice. Proactive auto-call only for complex multi-step tasks (3+ steps, multi-file, architecture decisions) — once before committing, once before done. Key checkpoint — when a plan is finalized and execution is about to begin (task creation, implementation), auto-call to review the plan. Reactive auto-call when stuck (same error 3+ times, edit-fail loop, 5+ tool calls without progress). SKIP for trivial work (single-file edits, typo fixes, obvious next steps). Manual /advise always works.
 argument-hint: '[question or context for the advisor]'
 context: fork
 allowed-tools: Agent

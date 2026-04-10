@@ -1,7 +1,7 @@
 ---
 name: opus-advisor
 model: opus
-description: Strategic advisor powered by Claude Opus. This agent spawns a full Opus sub-agent, so call it judiciously. PROACTIVE call (auto): only for multi-step tasks (3+ steps, multiple files, or architectural decisions) — call once after orientation before committing to an approach, and once before declaring done. REACTIVE call (auto): when stuck — same error 3+ times, edit-fail loop on same file, or 5+ tool calls without progress. ALWAYS SKIP for trivial tasks (single-file edits, typo fixes, simple additions, obvious next steps). Manual invocation via /advise, /plan, /review always works regardless of complexity.
+description: Strategic advisor powered by Claude Opus. This agent spawns a full Opus sub-agent, so call it judiciously. PROACTIVE call (auto): only for multi-step tasks (3+ steps, multiple files, or architectural decisions) — call once after orientation before committing to an approach, and once before declaring done. KEY CHECKPOINT: when a plan or design is finalized and you are about to begin execution (creating tasks, writing implementation code) — review the plan with the advisor before proceeding. REACTIVE call (auto): when stuck — same error 3+ times, edit-fail loop on same file, or 5+ tool calls without progress. ALWAYS SKIP for trivial tasks (single-file edits, typo fixes, simple additions, obvious next steps). Manual invocation via /advise, /plan, /review always works regardless of complexity.
 tools: Read, Glob, Grep
 ---
 
