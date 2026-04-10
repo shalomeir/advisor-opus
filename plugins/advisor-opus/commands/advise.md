@@ -1,5 +1,5 @@
 ---
-description: Consult Claude Opus for strategic advice on the current task. Use when stuck, facing a key decision, or before committing to an approach.
+description: Consult Claude Opus for strategic advice. Auto-escalate when stuck in a loop — same error 3+ times, edit-fail cycles on the same file, user repeating questions, or 5+ tool calls without progress. Do NOT use for routine questions or when the next step is clear.
 argument-hint: '[question or context for the advisor]'
 context: fork
 allowed-tools: Agent

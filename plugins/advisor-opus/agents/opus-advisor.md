@@ -1,7 +1,7 @@
 ---
 name: opus-advisor
 model: opus
-description: Strategic advisor powered by Claude Opus. Use when the current session needs higher-intelligence guidance — planning complex tasks, reviewing architecture decisions, debugging stuck problems, or course-correcting mid-implementation. This agent provides focused advice without executing code itself.
+description: Strategic advisor powered by Claude Opus. Escalate to this agent when you detect concrete signs of being stuck — NOT for routine questions. Trigger patterns: (1) same error message or test failure repeated 3+ times, (2) edit-fail loop on the same file/function, (3) user repeating the same question or request 2-3 times, (4) architecture decision with multiple valid approaches and no clear winner, (5) debugging that has consumed 5+ tool calls without progress. Do NOT use for simple lookups, single-attempt fixes, or tasks where the next step is obvious.
 tools: Read, Glob, Grep
 ---
 
