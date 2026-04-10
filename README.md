@@ -1,3 +1,15 @@
+# ⚠️ Deprecated — Advisor Opus
+
+> **Claude Code에 `/advisor` 기능이 공식 출시(혹은 출시 예정)되어, 이 플러그인은 deprecated 되었습니다.**
+>
+> 이 플러그인이 제공하던 Advisor 패턴이 Claude Code에 네이티브로 내장됩니다.
+> **공식 기능을 사용하세요:** Claude Code 세션에서 `/advisor`를 입력하면 됩니다.
+>
+> 다만, 이 플러그인은 **skill 호출 시점을 직접 커스터마이즈**할 수 있어 여전히 유용합니다.
+> Repo는 계속 유지되며, 설치하여 사용할 수 있습니다.
+
+---
+
 # Advisor Opus — Claude Code Plugin
 
 > **This is an unofficial, community-driven plugin.** Not affiliated with or endorsed by Anthropic.
@@ -19,6 +31,21 @@ Anthropic's [Advisor Strategy](https://claude.com/blog/the-advisor-strategy): pa
 /plugin install advisor-opus@advisor-opus
 /reload-plugins
 ```
+
+## When Does It Invoke?
+
+설치하면 Sonnet/Haiku 세션에서 다음 시점에 **자동으로 Opus advisor 호출을 제안**합니다:
+
+| 시점 | Skill | 트리거 조건 |
+|---|---|---|
+| **PLANNING** | `/advisor-opus:plan` | 실행 직전, 복잡한 작업(3+ 단계, 멀티 파일 변경)일 때 |
+| **COMPLETION** | `/advisor-opus:review` | 코드 작성 완료 후, 커밋 직전 (파일 작성됨, 테스트 실행됨) |
+| **PIVOT / REACTIVE** | `/advisor-opus:advise` | 방향 전환이 필요하거나 막혔을 때 (드묾) |
+
+- 목표: **복잡한 작업당 2회, 최대 4회** (planning 1회 + completion 1회)
+- 단순한 작업은 항상 스킵
+- Opus 세션에서는 auto-invocation 비활성화 (같은 모델이 자기 자신에게 조언하는 건 의미 없음)
+- 수동 호출(`/advisor-opus:plan`, `/advise`, `/review`)은 언제든 가능
 
 ## Commands
 
