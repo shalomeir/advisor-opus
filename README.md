@@ -2,6 +2,8 @@
 
 Bring the [Advisor Strategy](https://claude.com/blog/the-advisor-strategy) into Claude Code. Consult Claude Opus as a strategic advisor mid-task — without switching your entire session to Opus.
 
+**Core value:** Sonnet이나 Haiku 세션에서 모델 전환 없이 Opus의 전략적 사고를 활용할 수 있게 해주는 플러그인입니다. 슬래시 커맨드 하나로 현재 작업 컨텍스트를 Opus에게 전달하고, 계획 수립·코드 리뷰·전략적 조언을 받을 수 있습니다.
+
 > **This is an unofficial, community-driven plugin.** It is NOT an official Anthropic product and is not affiliated with or endorsed by Anthropic.
 
 ## Why the Advisor Strategy?
@@ -29,6 +31,8 @@ No API integration needed. No code changes. Just a slash command — or let Clau
 - `/advisor-opus:review` — have Opus review code changes, architecture, or approach with focus on correctness, edge cases, and security
 
 ### Smart Auto-Invocation
+
+> **Note:** Auto-invocation is **best-effort** and may not always trigger at the optimal moment. The executor model (Sonnet/Haiku) interprets the invocation rules heuristically — it may occasionally miss a trigger or fire at a suboptimal time. For reliable invocation, use the explicit slash commands (`/advise`, `/plan`, `/review`).
 
 The plugin uses a **hybrid invocation strategy** designed to balance Opus call costs against value. Since each call spawns a full Opus sub-agent (significantly more expensive than the API's lightweight sub-inference), auto-invocation targets **2 calls per complex task, max 4**. All auto-calls gated to multi-step tasks (3+ steps, multiple files, or architectural decisions).
 
