@@ -30,20 +30,61 @@ No API integration needed. No code changes. Just a slash command — or let Clau
 
 ### Slash Commands (Explicit)
 
-- `/advisor-opus:advise` — consult Opus for strategic advice when stuck, facing a key decision, or before committing to an approach
+- `/advisor-opus:advise` — consult Opus for strategic advice at any point
 - `/advisor-opus:plan` — get Opus to create a structured implementation plan (End State → Critical Path → Risks → First Move)
 - `/advisor-opus:review` — have Opus review code changes, architecture, or approach with focus on correctness, edge cases, and security
 
-### Auto-Invocation (Proactive)
+### Smart Auto-Invocation
 
-The `opus-advisor` agent is also registered as a subagent that Claude Code can spawn on its own when the situation calls for it. In these cases, Claude Code may **automatically consult Opus** without an explicit slash command:
+The plugin uses a **hybrid invocation strategy** designed to balance Opus call costs against value. Since each call spawns a full Opus sub-agent (significantly more expensive than the API's lightweight sub-inference), auto-invocation is gated by task complexity:
 
-- **Stuck or going in circles** — repeated failures, errors not converging, approach not working
-- **Complex planning needed** — multi-step task that requires a strategy before diving in
-- **Architecture decisions** — choosing between patterns, technologies, or trade-offs
-- **Debugging dead ends** — when the current model needs a higher-intelligence perspective
+#### Proactive Calls (complex tasks only)
 
-Auto-invocation depends on Claude Code's own judgment about when to escalate. For **guaranteed** Opus consultation, use the slash commands directly.
+Auto-suggested only for **multi-step tasks** (3+ steps, multiple files, or architectural decisions):
+
+1. **After orientation, before committing** — once you've read files and explored the codebase, but before writing code or creating tasks
+2. **Before declaring done** — after file writes and tests, before the final completion claim
+
+#### Key Checkpoint: Plan → Execution Transition
+
+The advisor automatically triggers at the **highest-value moment** — when an approach has been decided and execution is about to begin:
+
+- **Formal**: plan mode completes (ExitPlanMode approved) → advisor reviews before TaskCreate / implementation
+- **Informal**: user confirms direction in conversation ("좋아 그렇게 하자", "let's go with that") → advisor reviews before proceeding
+
+This is where catching issues prevents the most rework: the plan is rich in context, it fires only once, and fixing course here saves the entire execution phase.
+
+```
+           Approach decided
+                  │
+      ┌───────────┼───────────┐
+      ▼                       ▼
+  Plan Mode              Conversation
+  ExitPlanMode          "좋아 그렇게 하자"
+  approved              user confirms
+      └───────┬───────────────┘
+              ▼
+     ★ CHECKPOINT: advisor review ★
+              │
+              ▼
+      TaskCreate / implementation
+```
+
+#### Reactive Calls (when stuck)
+
+Auto-suggested when the executor detects it's stuck:
+
+- Same error message or test failure **3+ times**
+- Edit-fail loop on the **same file/function**
+- **5+ tool calls** without meaningful progress
+
+#### Always Skipped
+
+Trivial tasks are never auto-escalated: single-file edits, typo fixes, simple additions, obvious next steps.
+
+#### Manual Override
+
+`/advise`, `/plan`, `/review` **always work** regardless of task complexity — the gates only apply to auto-invocation.
 
 ## How It Works
 
@@ -56,7 +97,7 @@ You (Claude Code session, any model)
   │   Opus subagent spawns (reads your full context)
   │       │
   │       ▼
-  │   Returns focused, actionable advice (~150 words)
+  │   Returns focused, actionable advice (~100 words)
   │
   └── You continue working, informed by Opus-level guidance
 ```
@@ -65,7 +106,15 @@ The advisor agent:
 - **Reads** your codebase (via Read, Glob, Grep tools)
 - **Advises** with specific recommendations, not vague suggestions
 - **Does NOT modify** any files — advice only
-- Returns concise, enumerated steps following the official Advisor Strategy prompting patterns
+- Returns concise, enumerated steps (~100 words default, expanded for plan/review tasks)
+
+### How to Treat the Advice
+
+Following the [official best practices](https://platform.claude.com/docs/en/agents-and-tools/tool-use/advisor-tool#best-practices):
+
+- **Give the advice serious weight.** If a step fails empirically or you have primary-source evidence that contradicts a claim, adapt — but don't silently switch.
+- **Reconcile conflicts explicitly.** If your data points one way and the advisor points another, surface the conflict in a follow-up call rather than guessing which is right.
+- **Make deliverables durable before review calls.** Write files, save results, commit changes before calling `/review` — if the session ends during the advisor call, a saved result persists.
 
 ## Requirements
 
@@ -110,12 +159,6 @@ claude --plugin-dir ./advisor-opus
 
 General-purpose strategic consultation. Use at any point when you want Opus-level thinking.
 
-**When to use:**
-- Before committing to an approach on a complex task
-- When stuck on a bug and need a fresh perspective
-- When facing an architectural decision with multiple valid options
-- When something feels off but you can't pinpoint why
-
 **Examples:**
 
 ```bash
@@ -135,12 +178,6 @@ General-purpose strategic consultation. Use at any point when you want Opus-leve
 ### `/advisor-opus:plan`
 
 Creates a structured implementation plan before you start complex work.
-
-**When to use:**
-- Before starting a multi-file feature implementation
-- Before a refactoring that touches many modules
-- When planning a migration or upgrade
-- When you need to break down a large task into safe steps
 
 **Examples:**
 
@@ -168,12 +205,6 @@ The plan follows a structured format:
 
 Opus-powered review of your code changes, architecture, or implementation approach.
 
-**When to use:**
-- Before creating a PR
-- After implementing a complex feature
-- When you want a second opinion on your approach
-- When reviewing security-sensitive code
-
 **Examples:**
 
 ```bash
@@ -198,31 +229,33 @@ The review focuses on:
 
 ## Typical Flows
 
-### Plan → Execute → Review
+### Plan → Checkpoint → Execute → Review
 
 ```bash
 # 1. Get Opus to plan the work
 /advisor-opus:plan add rate limiting to the API endpoints
 
-# 2. Execute the plan (you or Claude Code with Sonnet)
+# 2. Opus auto-reviews the plan at the checkpoint (before execution)
+#    → catches issues before any code is written
+
+# 3. Execute the plan (you or Claude Code with Sonnet)
 # ... implement the feature ...
 
-# 3. Have Opus review the result
+# 4. Have Opus review the result
 /advisor-opus:review
+```
+
+### Auto-Escalation on Stuck
+
+```bash
+# You're debugging, same error 3 times...
+# → Opus auto-invoked: "The root cause is X, not what you're looking at."
 ```
 
 ### Quick Decision Support
 
 ```bash
-# Ask for advice before a key decision
 /advisor-opus:advise Redis vs. in-memory cache for session storage — we have 3 app instances behind a load balancer
-```
-
-### Debug Consultation
-
-```bash
-# When stuck, get Opus to analyze the situation
-/advisor-opus:advise I've tried X and Y but the memory leak persists — what am I missing?
 ```
 
 ## Architecture
@@ -250,16 +283,18 @@ The entire plugin is three command files and one agent definition — easy to un
 |---|---|---|
 | **Where** | Messages API (`advisor_20260301`) | Claude Code CLI |
 | **How** | Server-side sub-inference within a single API request | Subagent spawned with `model: opus` |
+| **Cost per call** | ~1,400-1,800 tokens (lightweight) | Full Opus agent (heavier) |
+| **Cost control** | `max_uses`, prompt caching | Complexity gate (3+ steps), manual override |
+| **Auto-invocation** | Built-in timing guidance | Hybrid: proactive (complex) + reactive (stuck) + checkpoint (plan→exec) |
 | **For whom** | Developers building applications | Claude Code users during development |
-| **Billing** | Per-token at Opus rates for advisor turns | Part of your Claude Code subscription/usage |
-| **Control** | `max_uses`, prompt caching, streaming pause | On-demand via slash commands |
 
-This plugin is inspired by the Advisor Strategy pattern but implements it through Claude Code's native agent system, not through the API's `advisor_20260301` tool type.
+This plugin is inspired by the Advisor Strategy pattern but implements it through Claude Code's native agent system, not through the API's `advisor_20260301` tool type. The **complexity gate** is unique to this plugin — a necessary adaptation since each call here is heavier than the API's sub-inference.
 
 ## References
 
 - [The Advisor Strategy](https://claude.com/blog/the-advisor-strategy) — Anthropic blog post
 - [Advisor Tool Documentation](https://platform.claude.com/docs/en/agents-and-tools/tool-use/advisor-tool) — API reference
+- [Advisor Tool Best Practices](https://platform.claude.com/docs/en/agents-and-tools/tool-use/advisor-tool#best-practices) — Timing, prompting, and cost control
 
 ## License
 
