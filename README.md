@@ -240,34 +240,62 @@ The review focuses on:
 - **Security** — vulnerabilities, data exposure, injection risks
 - **Silent Failures** — swallowed errors, missing validation, unsafe defaults
 
+## Call Budget
+
+Each Opus call spawns a full sub-agent — heavier than the API's lightweight sub-inference. The plugin targets **2 calls per complex task, max 4**:
+
+```
+Complex task lifecycle (3+ steps):
+
+  ┌─ PLANNING ────────── 1 call (always)   before execution
+  │
+  │  ... implementation ...
+  │
+  │  ┌─ PIVOT ────────── 0-1 call (rare)   if changing direction
+  │  │
+  │  │  ┌─ REACTIVE ──── 0-1 call (rare)   if stuck
+  │  │  │
+  └──┴──┴─ COMPLETION ── 1 call (always)   before commit/PR/done
+  ─────────────────────────────────────
+  Typical: 2 calls    Max: 4 calls
+```
+
+Trivial tasks (single-file edits, typos, obvious next steps) are **always skipped** — zero auto-calls. Manual `/advise`, `/plan`, `/review` bypass all gates.
+
 ## Typical Flows
 
-### Plan → Checkpoint → Execute → Review
+### Plan → Execute → Completion Review
 
 ```bash
-# 1. Get Opus to plan the work
+# 1. Plan the work (PLANNING call fires automatically)
 /advisor-opus:plan add rate limiting to the API endpoints
 
-# 2. Opus auto-reviews the plan at the checkpoint (before execution)
-#    → catches issues before any code is written
-
-# 3. Execute the plan (you or Claude Code with Sonnet)
+# 2. Execute the plan (Sonnet handles implementation)
 # ... implement the feature ...
 
-# 4. Have Opus review the result
-/advisor-opus:review
+# 3. Code complete — COMPLETION call fires automatically before commit
+#    → catches edge cases, silent failures before they enter git history
+```
+
+### Mid-Execution Pivot
+
+```bash
+# You're implementing approach A, realize it won't scale...
+# → PIVOT auto-fires: "Approach B is better because X,
+#    but watch out for Y when you switch."
 ```
 
 ### Auto-Escalation on Stuck
 
 ```bash
-# You're debugging, same error 3 times...
-# → Opus auto-invoked: "The root cause is X, not what you're looking at."
+# Same error 3 times in a row...
+# → REACTIVE auto-fires: "The root cause is X, not what you're looking at."
 ```
 
 ### Quick Decision Support
 
 ```bash
+# Manual call — always works, no complexity gate
 /advisor-opus:advise Redis vs. in-memory cache for session storage — we have 3 app instances behind a load balancer
 ```
 
@@ -297,8 +325,8 @@ The entire plugin is three command files and one agent definition — easy to un
 | **Where** | Messages API (`advisor_20260301`) | Claude Code CLI |
 | **How** | Server-side sub-inference within a single API request | Subagent spawned with `model: opus` |
 | **Cost per call** | ~1,400-1,800 tokens (lightweight) | Full Opus agent (heavier) |
-| **Cost control** | `max_uses`, prompt caching | Complexity gate (3+ steps), manual override |
-| **Auto-invocation** | Built-in timing guidance | Hybrid: proactive (complex) + reactive (stuck) + checkpoint (plan→exec) |
+| **Cost control** | `max_uses`, prompt caching | Complexity gate (3+ steps), call budget (target 2, max 4) |
+| **Auto-invocation** | Built-in timing guidance | 4 triggers: PLANNING + COMPLETION (typical) + PIVOT + REACTIVE (rare) |
 | **For whom** | Developers building applications | Claude Code users during development |
 
 This plugin is inspired by the Advisor Strategy pattern but implements it through Claude Code's native agent system, not through the API's `advisor_20260301` tool type. The **complexity gate** is unique to this plugin — a necessary adaptation since each call here is heavier than the API's sub-inference.
