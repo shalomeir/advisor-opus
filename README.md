@@ -44,9 +44,9 @@ Auto-suggested only for **multi-step tasks** (3+ steps, multiple files, or archi
 
 - **After orientation, before committing** — once you've read files and explored the codebase, but before writing code or creating tasks
 
-#### Pre-Commit Review
+#### Completion Review
 
-When a substantial unit of work is **code-complete and about to be committed** — all files written, tests run:
+When a substantial unit of work is **code-complete and about to be committed, PR'd, or declared done** — all files written, tests run:
 
 - Auto-calls the advisor for a final check on correctness, edge cases, and silent failures
 - **Complements verification**: tests check "does it work", the advisor checks "did we miss anything"
