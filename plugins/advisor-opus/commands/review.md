@@ -7,39 +7,64 @@ allowed-tools: Agent, Bash
 
 Route this request to the `advisor-opus:opus-advisor` subagent with a review-specific framing.
 
+**IMPORTANT**: The advisor agent starts fresh with NO conversation history. You (the executor) must build the context.
+
 Raw user request:
 $ARGUMENTS
 
-## Pre-Processing (executor does this BEFORE spawning the advisor)
+## Context Gathering (executor does this BEFORE spawning the advisor)
 
-Before forwarding to the advisor, gather diff context so the advisor knows exactly what changed:
+The advisor cannot see your conversation. You must build the full picture. Gather two types of context:
 
-1. Run `git diff --stat` to get the list of changed files and line counts
-2. Run `git diff` to get the full diff (if very large, use `git diff --stat` summary only and list the top changed files)
-3. Run `git status` to see untracked/staged files
+### 1. Conversation context (three layers)
+
+1. **Task summary** (1-2 sentences): What was the goal? What did the user ask for?
+2. **What was done** (bullet points, compressed): What approach was taken? Key decisions made? Files created/modified and why? Keep earlier steps compressed to essentials.
+3. **Recent context** (raw, uncompressed): The last 3-5 tool calls and results — especially test outputs, error messages, and the final state of implementation. Include these **verbatim**. The advisor needs to see exactly what happened to review accurately.
+
+### 2. Git diff context
+
+1. Run `git status` to see untracked/staged files
+2. Run `git diff --stat` to get the list of changed files and line counts
+3. Run `git diff` to get the full diff (if very large, use `git diff --stat` summary only and list the top changed files)
 4. If there are staged changes, also run `git diff --cached`
 
-Include ALL of this output in the advisor prompt under a `## Changes` section.
+Structure the advisor prompt as:
+
+```
+## Task
+[1-2 sentence summary of the session goal]
+
+## What Was Done
+- [compressed summary of approach and key decisions]
+- [files created/modified and why]
+
+## Recent Context (verbatim)
+[last 3-5 tool calls/results, test outputs, errors]
+
+## Changes (git)
+[git status, git diff --stat, git diff output]
+
+## Review Target
+[user's $ARGUMENTS, or "Review all changes for correctness, edge cases, and silent failures"]
+```
 
 ## Routing Rules
 
-1. If `$ARGUMENTS` is empty, forward to the `advisor-opus:opus-advisor` subagent with this prompt:
+1. Build the full context (conversation + git diff) as described above.
+2. Forward to the `advisor-opus:opus-advisor` subagent with the structured context, plus this prefix:
 
-   "Review the following code changes. This is a review task — provide thorough, detailed analysis without the usual 100-word limit. Focus on:
+   "Review the following code changes and context. This is a review task — provide thorough, detailed analysis without the usual 100-word limit. Focus on:
    1. **Correctness** — bugs, logic errors, unhandled edge cases
    2. **Architecture** — design flaws, coupling, scalability concerns
    3. **Security** — vulnerabilities, data exposure, injection risks
    4. **Silent Failures** — swallowed errors, missing validation, unsafe defaults
 
    If the implementation is sound, confirm it concisely. Do not invent problems.
-   Use Read/Glob/Grep to examine full file context when the diff alone is insufficient to judge correctness.
+   Use Read/Glob/Grep to examine full file context when the diff alone is insufficient to judge correctness."
 
-   ## Changes
-   [paste git status, git diff --stat, and git diff output here]"
-
-2. If `$ARGUMENTS` is provided, forward to the `advisor-opus:opus-advisor` subagent with the same review prefix, adding the user's request as the review target. Still include the diff context in `## Changes`.
-
-3. Return the advisor's review verbatim.
+3. If `$ARGUMENTS` is provided, include it as the `## Review Target` section.
+4. Return the advisor's review verbatim.
 
 ## How the Executor Should Treat the Review
 
