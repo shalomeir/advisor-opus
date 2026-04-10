@@ -128,6 +128,16 @@ Following the [official best practices](https://platform.claude.com/docs/en/agen
 - **Claude Code** — the [Anthropic CLI](https://claude.ai/code)
 - **Claude Opus access** — the advisor subagent runs on Claude Opus 4.6
 
+### Which executor model should I use?
+
+The advisor's value scales with the intelligence gap between executor and advisor:
+
+| Your session model | Recommendation | Why |
+|---|---|---|
+| **Haiku** | Strongly recommended | Biggest intelligence gap — Opus guidance dramatically improves Haiku's output. Maximum cost efficiency. |
+| **Sonnet** | Recommended (sweet spot) | Meaningful intelligence upgrade at critical moments. Bulk work stays at Sonnet rates. |
+| **Opus** | Manual only (`/advise`, `/plan`, `/review`) | No intelligence gap — the advisor is the same model. Auto-invocation adds cost without a clear upgrade. Use manually as a "step back and rethink" second opinion when genuinely stuck. |
+
 ## Install
 
 In Claude Code, run:
@@ -322,6 +332,8 @@ The entire plugin is three command files and one agent definition — easy to un
 - The complexity gate (3+ steps) and call budget (target 2, max 4) exist specifically to limit auto-invocation to cases where the advisor is likely to pay for itself
 
 **This is not "cheaper Opus."** It's a small additional investment in Opus-level judgment at critical decision points, aimed at making your overall session more efficient.
+
+**Model matters.** The plugin delivers the most value on Haiku/Sonnet sessions where the intelligence gap justifies the cost. On Opus sessions, auto-invocation is unlikely to pay for itself — use manual commands only when you want a deliberate second opinion.
 
 ## Differences from the Official Advisor Tool API
 
