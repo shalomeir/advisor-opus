@@ -136,7 +136,7 @@ The advisor's value scales with the intelligence gap between executor and adviso
 |---|---|---|
 | **Haiku** | Strongly recommended | Biggest intelligence gap — Opus guidance dramatically improves Haiku's output. Maximum cost efficiency. |
 | **Sonnet** | Recommended (sweet spot) | Meaningful intelligence upgrade at critical moments. Bulk work stays at Sonnet rates. |
-| **Opus** | Manual only (`/advise`, `/plan`, `/review`) | No intelligence gap — the advisor is the same model. Auto-invocation adds cost without a clear upgrade. Use manually as a "step back and rethink" second opinion when genuinely stuck. |
+| **Opus** | Not recommended | Same model, no intelligence gap, no cache sharing. Each call re-reads your full context at Opus rates for the same quality of thinking. Just ask your current session to "step back and reconsider" — same effect, zero extra cost. Auto-invocation is disabled on Opus sessions. |
 
 ## Install
 
@@ -333,7 +333,7 @@ The entire plugin is three command files and one agent definition — easy to un
 
 **This is not "cheaper Opus."** It's a small additional investment in Opus-level judgment at critical decision points, aimed at making your overall session more efficient.
 
-**Model matters.** The plugin delivers the most value on Haiku/Sonnet sessions where the intelligence gap justifies the cost. On Opus sessions, auto-invocation is unlikely to pay for itself — use manual commands only when you want a deliberate second opinion.
+**Model matters.** The plugin delivers the most value on Haiku/Sonnet sessions where the intelligence gap justifies the cost. On Opus sessions, there is no benefit — the advisor is the same model with no shared cache, so you're paying Opus rates to re-read your context for the same quality of thinking. Just ask your current session to reconsider instead.
 
 ## Differences from the Official Advisor Tool API
 
