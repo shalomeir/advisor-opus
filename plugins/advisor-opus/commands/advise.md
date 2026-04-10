@@ -16,6 +16,7 @@ $ARGUMENTS
 
 1. If `$ARGUMENTS` is empty, forward the current conversation context with: "Review the current task and conversation. Provide strategic guidance on the best approach, flag any risks, and suggest next steps."
 2. If `$ARGUMENTS` is provided, forward it as-is to the advisor.
-3. Spawn the `advisor-opus:opus-advisor` subagent with `model: "opus"`.
-4. Return the advisor's response verbatim. Do not summarize, filter, or add commentary.
-5. After returning the advice, do not take any further action — let the user decide how to proceed.
+3. Spawn the `advisor-opus:opus-advisor` subagent.
+4. If the question requires detailed analysis, tell the advisor it may exceed the usual 150-word default. For simple questions, concise answers are fine.
+5. Return the advisor's response verbatim. Do not summarize, filter, or add commentary.
+6. After returning the advice, do not take any further action — let the user decide how to proceed.

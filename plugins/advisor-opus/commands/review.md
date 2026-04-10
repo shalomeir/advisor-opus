@@ -13,7 +13,7 @@ $ARGUMENTS
 ## Routing Rules
 
 1. If `$ARGUMENTS` is empty, forward with: "Review the files in the working directory. Use Glob and Read to explore the codebase structure, then review key files for correctness, edge cases, silent failures, and security issues. Be specific — name files and line numbers."
-2. If `$ARGUMENTS` is provided, forward to the `advisor-opus:opus-advisor` subagent with `model: "opus"` and this prefix:
+2. If `$ARGUMENTS` is provided, forward to the `advisor-opus:opus-advisor` subagent with this prefix:
 
    "Review the following with a critical eye. Focus on:
    1. **Correctness** — bugs, logic errors, unhandled edge cases

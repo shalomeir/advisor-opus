@@ -13,7 +13,7 @@ $ARGUMENTS
 ## Routing Rules
 
 1. If `$ARGUMENTS` is empty, ask the user what they want to plan.
-2. Forward to the `advisor-opus:opus-advisor` subagent with `model: "opus"` and this prefix:
+2. Forward to the `advisor-opus:opus-advisor` subagent with this prefix:
 
    "Create a strategic implementation plan for the following task. Structure your response as:
    1. **End State** — what 'done' looks like
