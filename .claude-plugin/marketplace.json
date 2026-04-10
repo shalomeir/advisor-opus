@@ -1,0 +1,23 @@
+{
+  "name": "advisor-opus",
+  "owner": {
+    "name": "shalomeir"
+  },
+  "metadata": {
+    "description": "Advisor Strategy plugin for Claude Code — consult Claude Opus as a strategic advisor for planning, reviewing, and course-correcting mid-task.",
+    "version": "0.1.0"
+  },
+  "plugins": [
+    {
+      "name": "advisor-opus",
+      "description": "Consult Claude Opus as a strategic advisor mid-task. Get Opus-level planning, code review, and decision support without switching your entire session.",
+      "version": "0.1.0",
+      "author": {
+        "name": "shalomeir"
+      },
+      "source": "./plugins/advisor-opus",
+      "category": "productivity",
+      "tags": ["advisor", "opus", "planning", "review", "strategy"]
+    }
+  ]
+}

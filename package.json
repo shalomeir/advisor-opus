@@ -1,0 +1,17 @@
+{
+  "name": "advisor-opus",
+  "version": "0.1.0",
+  "private": false,
+  "description": "Advisor Strategy plugin for Claude Code — consult Claude Opus as a strategic advisor mid-task for higher-intelligence guidance at lower cost.",
+  "license": "MIT",
+  "author": {
+    "name": "shalomeir"
+  },
+  "keywords": [
+    "claude-code",
+    "plugin",
+    "advisor",
+    "opus",
+    "advisor-strategy"
+  ]
+}
