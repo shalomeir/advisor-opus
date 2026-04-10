@@ -6,15 +6,9 @@ Bring the [Advisor Strategy](https://claude.com/blog/the-advisor-strategy) into 
 
 ## Why the Advisor Strategy?
 
-Anthropic introduced the [Advisor Tool](https://platform.claude.com/docs/en/agents-and-tools/tool-use/advisor-tool) as an API-level pattern: pair a fast executor model (Sonnet/Haiku) with a higher-intelligence advisor (Opus) that provides strategic guidance mid-generation. The results are compelling:
+Anthropic introduced the [Advisor Tool](https://platform.claude.com/docs/en/agents-and-tools/tool-use/advisor-tool) as an API-level pattern: pair a fast executor model (Sonnet/Haiku) with a higher-intelligence advisor (Opus) that provides strategic guidance at critical moments.
 
-| Configuration | Intelligence | Cost |
-|---|---|---|
-| Sonnet solo | Baseline | Baseline |
-| **Sonnet + Opus advisor** | **+2.7pp on SWE-bench** | **11.9% cheaper per task** |
-| Haiku + Opus advisor | 2x BrowseComp score | 85% cheaper than Sonnet |
-
-The key insight: **most work is mechanical, but having an excellent plan is crucial.** The executor handles the bulk of token generation at lower rates while Opus steps in only at critical decision points.
+The key insight: **most work is mechanical, but having an excellent plan is crucial.** A wrong approach discovered 30 minutes into implementation costs far more than a 2-minute advisor call that catches it upfront. The value isn't cheaper tokens per se — it's **avoiding wasted cycles** from wrong directions, missed edge cases, and rework.
 
 ### From API to Claude Code
 
@@ -318,18 +312,29 @@ User ─── /advisor-opus:* slash command
 
 The entire plugin is three command files and one agent definition — easy to understand, customize, and extend.
 
+## Cost Considerations
+
+**Be honest about costs.** Each advisor call spawns a full Opus sub-agent — significantly heavier than the API's lightweight sub-inference (~1,400-1,800 tokens). There is no prompt caching between calls.
+
+- Advisor calls **add** to your session cost, not reduce it
+- The value comes from **preventing wasted work** — catching wrong approaches, missed edge cases, and rework before they consume many more tokens
+- Whether this nets out positive depends on your task: complex multi-step work with real risk of wrong direction benefits most; straightforward tasks don't need it
+- The complexity gate (3+ steps) and call budget (target 2, max 4) exist specifically to limit auto-invocation to cases where the advisor is likely to pay for itself
+
+**This is not "cheaper Opus."** It's a small additional investment in Opus-level judgment at critical decision points, aimed at making your overall session more efficient.
+
 ## Differences from the Official Advisor Tool API
 
 | | Advisor Tool API | This Plugin |
 |---|---|---|
 | **Where** | Messages API (`advisor_20260301`) | Claude Code CLI |
 | **How** | Server-side sub-inference within a single API request | Subagent spawned with `model: opus` |
-| **Cost per call** | ~1,400-1,800 tokens (lightweight) | Full Opus agent (heavier) |
+| **Cost per call** | ~1,400-1,800 tokens (lightweight) | Full Opus agent (heavier, no caching) |
 | **Cost control** | `max_uses`, prompt caching | Complexity gate (3+ steps), call budget (target 2, max 4) |
 | **Auto-invocation** | Built-in timing guidance | 4 triggers: PLANNING + COMPLETION (typical) + PIVOT + REACTIVE (rare) |
 | **For whom** | Developers building applications | Claude Code users during development |
 
-This plugin is inspired by the Advisor Strategy pattern but implements it through Claude Code's native agent system, not through the API's `advisor_20260301` tool type. The **complexity gate** is unique to this plugin — a necessary adaptation since each call here is heavier than the API's sub-inference.
+This plugin is inspired by the Advisor Strategy pattern but implements it through Claude Code's native agent system, not through the API's `advisor_20260301` tool type. The **complexity gate** and **call budget** are unique to this plugin — necessary adaptations since each call here is heavier than the API's sub-inference.
 
 ## References
 
