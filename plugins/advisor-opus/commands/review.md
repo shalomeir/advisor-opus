@@ -1,5 +1,5 @@
 ---
-description: Have Claude Opus review code changes, architecture decisions, or implementation approach. Auto-suggest for complex multi-step tasks (3+ steps, multi-file changes) when work is code-complete — all files written, tests run, about to commit or declare done. Complements verification (tests check "does it work", advisor checks "did we miss anything"). SKIP for trivial changes. Manual /review always works.
+description: Have Claude Opus review code changes, architecture decisions, or implementation approach. If you are Claude Opus, do NOT auto-invoke — only respond to explicit /review commands. For Haiku/Sonnet: auto-suggest for complex multi-step tasks (3+ steps, multi-file changes) when work is code-complete — all files written, tests run, about to commit or declare done. Complements verification (tests check "does it work", advisor checks "did we miss anything"). SKIP for trivial changes. Manual /review always works regardless of executor model.
 argument-hint: '[what to review — files, approach, architecture, etc.]'
 context: fork
 allowed-tools: Agent, Bash

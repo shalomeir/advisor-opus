@@ -1,5 +1,5 @@
 ---
-description: Consult Claude Opus for strategic advice. Aim for 2 calls per complex task, max 4. PLANNING (1 call) — for multi-step tasks (3+ steps, multi-file, architecture), call once before execution begins (after plan mode exit, or after orientation if no plan mode). COMPLETION (1 call) — when work is code-complete and about to be committed/PR'd/declared done. PIVOT (rare) — when changing approach mid-execution. REACTIVE (rare) — when stuck (same error 3+, edit-fail loop, 5+ tool calls). SKIP for trivial work. Manual /advise always works.
+description: Consult Claude Opus for strategic advice. If you are Claude Opus, do NOT auto-invoke — only respond to explicit /advise commands. For Haiku/Sonnet: aim for 2 calls per complex task, max 4. PLANNING (1 call) — for multi-step tasks (3+ steps, multi-file, architecture), call once before execution begins. COMPLETION (1 call) — when work is code-complete and about to be committed/PR'd/declared done. PIVOT (rare) — when changing approach mid-execution. REACTIVE (rare) — when stuck (same error 3+, edit-fail loop, 5+ tool calls). SKIP for trivial work. Manual /advise always works regardless of executor model.
 argument-hint: '[question or context for the advisor]'
 context: fork
 allowed-tools: Agent

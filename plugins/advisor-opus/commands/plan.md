@@ -1,5 +1,5 @@
 ---
-description: Get Claude Opus to create a strategic implementation plan. Auto-suggest for complex multi-step tasks (3+ steps, multi-file, architecture decisions) once before execution begins — after plan mode exit or after orientation if no plan mode. This is the PLANNING call — do not also call /advise separately for the same decision point. SKIP for trivial or single-step work. Manual /plan always works.
+description: Get Claude Opus to create a strategic implementation plan. If you are Claude Opus, do NOT auto-invoke — only respond to explicit /plan commands. For Haiku/Sonnet: auto-suggest for complex multi-step tasks (3+ steps, multi-file, architecture decisions) once before execution begins — after plan mode exit or after orientation if no plan mode. This is the PLANNING call — do not also call /advise separately for the same decision point. SKIP for trivial or single-step work. Manual /plan always works regardless of executor model.
 argument-hint: '[what to plan — feature, refactor, migration, etc.]'
 context: fork
 allowed-tools: Agent
