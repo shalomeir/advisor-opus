@@ -36,15 +36,36 @@ No API integration needed. No code changes. Just a slash command — or let Clau
 
 ### Smart Auto-Invocation
 
-The plugin uses a **hybrid invocation strategy** designed to balance Opus call costs against value. Since each call spawns a full Opus sub-agent (significantly more expensive than the API's lightweight sub-inference), auto-invocation is gated by task complexity:
+The plugin uses a **hybrid invocation strategy** designed to balance Opus call costs against value. Since each call spawns a full Opus sub-agent (significantly more expensive than the API's lightweight sub-inference), auto-invocation targets **2 calls per complex task, max 4**. All auto-calls gated to multi-step tasks (3+ steps, multiple files, or architectural decisions).
 
-#### Proactive Call (complex tasks only)
+#### PLANNING (1 call — before execution)
 
-Auto-suggested only for **multi-step tasks** (3+ steps, multiple files, or architectural decisions):
+One call before execution begins. Covers whichever moment comes **last** before you start writing code:
 
-- **After orientation, before committing** — once you've read files and explored the codebase, but before writing code or creating tasks
+- **With plan mode**: plan mode exits (ExitPlanMode approved) → advisor reviews the plan before TaskCreate / implementation
+- **Without plan mode**: after orientation (file reads, exploration) → advisor reviews before committing to an approach
+- **Informal**: user confirms direction in conversation ("좋아 그렇게 하자", "let's go with that") → advisor reviews before proceeding
 
-#### Completion Review
+**Key rule: do NOT call twice** (once for orientation, again for plan confirmation). Pick whichever moment comes last — that's the one call.
+
+```
+      Orientation (file reads)
+              │
+      ┌───────┼────────────┐
+      ▼                    ▼
+  No plan mode         Plan mode
+      │                    │
+      │              ExitPlanMode
+      │               approved
+      └───────┬────────────┘
+              ▼
+     ★ PLANNING: 1 advisor call ★
+              │
+              ▼
+      TaskCreate / implementation
+```
+
+#### COMPLETION (1 call — before done)
 
 When a substantial unit of work is **code-complete and about to be committed, PR'd, or declared done** — all files written, tests run:
 
@@ -52,32 +73,7 @@ When a substantial unit of work is **code-complete and about to be committed, PR
 - **Complements verification**: tests check "does it work", the advisor checks "did we miss anything"
 - Make deliverables durable (save files) before this call — if the session ends during it, saved work persists
 
-#### Key Checkpoint: Plan → Execution Transition
-
-The advisor automatically triggers at the **highest-value moment** — when an approach has been decided and execution is about to begin:
-
-- **Formal**: plan mode completes (ExitPlanMode approved) → advisor reviews before TaskCreate / implementation
-- **Informal**: user confirms direction in conversation ("좋아 그렇게 하자", "let's go with that") → advisor reviews before proceeding
-
-This is where catching issues prevents the most rework: the plan is rich in context, it fires only once, and fixing course here saves the entire execution phase.
-
-```
-           Approach decided
-                  │
-      ┌───────────┼───────────┐
-      ▼                       ▼
-  Plan Mode              Conversation
-  ExitPlanMode          "좋아 그렇게 하자"
-  approved              user confirms
-      └───────┬───────────────┘
-              ▼
-     ★ CHECKPOINT: advisor review ★
-              │
-              ▼
-      TaskCreate / implementation
-```
-
-#### Pivot Calls (change of approach)
+#### PIVOT (rare — change of approach)
 
 Auto-suggested when the executor is about to **fundamentally change direction** mid-execution:
 
