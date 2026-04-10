@@ -29,6 +29,8 @@ The advisor cannot see your conversation. You must build the full picture. Gathe
 3. Run `git diff` to get the full diff (if very large, use `git diff --stat` summary only and list the top changed files)
 4. If there are staged changes, also run `git diff --cached`
 
+**If the working tree is clean and there are no staged changes**, stop here and tell the user: "No uncommitted changes found. Nothing to review. Commit your changes first, or specify files/topics to review via `/advisor-opus:review <target>`."
+
 Structure the advisor prompt as:
 
 ```
@@ -61,7 +63,7 @@ Structure the advisor prompt as:
    4. **Silent Failures** — swallowed errors, missing validation, unsafe defaults
 
    If the implementation is sound, confirm it concisely. Do not invent problems.
-   Use Read/Glob/Grep to examine full file context when the diff alone is insufficient to judge correctness."
+   Use Read/Glob/Grep ONLY to read specific files already named in the diff — do NOT read files unrelated to the changes, and do NOT do a full codebase scan."
 
 3. If `$ARGUMENTS` is provided, include it as the `## Review Target` section.
 4. Return the advisor's review verbatim.
