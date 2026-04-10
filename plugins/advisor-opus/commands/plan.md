@@ -23,4 +23,5 @@ $ARGUMENTS
 
    Task: [user's request]"
 
-3. Return the advisor's plan verbatim.
+3. **Important**: Tell the advisor that this is a planning task — it should provide a comprehensive, detailed plan without the usual 150-word limit. Use structured sections for clarity.
+4. Return the advisor's plan verbatim.

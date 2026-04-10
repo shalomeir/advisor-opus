@@ -12,7 +12,7 @@ $ARGUMENTS
 
 ## Routing Rules
 
-1. If `$ARGUMENTS` is empty, forward with: "Review the recent code changes in the working directory (check git diff). Focus on correctness, edge cases, silent failures, and security issues. Be specific — name files and line numbers."
+1. If `$ARGUMENTS` is empty, forward with: "Review the files in the working directory. Use Glob and Read to explore the codebase structure, then review key files for correctness, edge cases, silent failures, and security issues. Be specific — name files and line numbers."
 2. If `$ARGUMENTS` is provided, forward to the `advisor-opus:opus-advisor` subagent with `model: "opus"` and this prefix:
 
    "Review the following with a critical eye. Focus on:
@@ -25,4 +25,5 @@ $ARGUMENTS
 
    Review target: [user's request]"
 
-3. Return the advisor's review verbatim.
+3. **Important**: Tell the advisor that this is a review task — it should provide thorough, detailed analysis without the usual 150-word limit. Structured sections with file-specific findings are preferred.
+4. Return the advisor's review verbatim.

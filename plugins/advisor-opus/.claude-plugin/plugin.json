@@ -1,5 +1,6 @@
 {
   "name": "advisor-opus",
+  "version": "0.1.0",
   "description": "Advisor Strategy for Claude Code — consult Claude Opus as a strategic advisor for planning, reviewing, and course-correcting mid-task.",
   "author": {
     "name": "shalomeir"
