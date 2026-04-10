@@ -1,5 +1,5 @@
 ---
-description: Have Claude Opus review current code changes, architecture decisions, or implementation approach. Call after file writes and test outputs are in the transcript, BEFORE declaring done.
+description: Have Claude Opus review code changes, architecture decisions, or implementation approach. Auto-suggest only for complex multi-step tasks (3+ steps, multi-file changes) after file writes and tests, before declaring done. SKIP for trivial changes. Manual /review always works.
 argument-hint: '[what to review — files, approach, architecture, etc.]'
 context: fork
 allowed-tools: Agent

@@ -1,7 +1,7 @@
 ---
 name: opus-advisor
 model: opus
-description: Strategic advisor powered by Claude Opus. Call BEFORE substantive work (writing, editing, committing to an approach) after initial orientation (file reads, fetches). Also call when task is believed complete, when stuck (errors recurring, approach not converging), or when considering a change of approach. On multi-step tasks, call at least once before committing and once before declaring done. Do NOT call on short reactive tasks where the next action is obvious from tool output just read.
+description: Strategic advisor powered by Claude Opus. This agent spawns a full Opus sub-agent, so call it judiciously. PROACTIVE call (auto): only for multi-step tasks (3+ steps, multiple files, or architectural decisions) — call once after orientation before committing to an approach, and once before declaring done. REACTIVE call (auto): when stuck — same error 3+ times, edit-fail loop on same file, or 5+ tool calls without progress. ALWAYS SKIP for trivial tasks (single-file edits, typo fixes, simple additions, obvious next steps). Manual invocation via /advise, /plan, /review always works regardless of complexity.
 tools: Read, Glob, Grep
 ---
 

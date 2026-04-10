@@ -1,5 +1,5 @@
 ---
-description: Get Claude Opus to create a strategic implementation plan before starting complex work. Call after orientation (file reads, exploration) but BEFORE writing code or committing to an approach.
+description: Get Claude Opus to create a strategic implementation plan. Auto-suggest only for complex multi-step tasks (3+ steps, multi-file changes, architecture decisions) after orientation but before writing code. SKIP for trivial or single-step work. Manual /plan always works.
 argument-hint: '[what to plan — feature, refactor, migration, etc.]'
 context: fork
 allowed-tools: Agent
