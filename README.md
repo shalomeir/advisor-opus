@@ -70,6 +70,16 @@ This is where catching issues prevents the most rework: the plan is rich in cont
       TaskCreate / implementation
 ```
 
+#### Pivot Calls (change of approach)
+
+Auto-suggested when the executor is about to **fundamentally change direction** mid-execution:
+
+- Abandoning the current strategy for a different solution
+- Reverting substantial work to try another way
+- Switching architecture, library, or pattern mid-implementation
+
+The advisor validates the new direction before you commit to it — catching cases where the original approach was actually correct, or where the new approach has non-obvious risks.
+
 #### Reactive Calls (when stuck)
 
 Auto-suggested when the executor detects it's stuck:
