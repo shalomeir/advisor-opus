@@ -38,12 +38,19 @@ No API integration needed. No code changes. Just a slash command — or let Clau
 
 The plugin uses a **hybrid invocation strategy** designed to balance Opus call costs against value. Since each call spawns a full Opus sub-agent (significantly more expensive than the API's lightweight sub-inference), auto-invocation is gated by task complexity:
 
-#### Proactive Calls (complex tasks only)
+#### Proactive Call (complex tasks only)
 
 Auto-suggested only for **multi-step tasks** (3+ steps, multiple files, or architectural decisions):
 
-1. **After orientation, before committing** — once you've read files and explored the codebase, but before writing code or creating tasks
-2. **Before declaring done** — after file writes and tests, before the final completion claim
+- **After orientation, before committing** — once you've read files and explored the codebase, but before writing code or creating tasks
+
+#### Pre-Commit Review
+
+When a substantial unit of work is **code-complete and about to be committed** — all files written, tests run:
+
+- Auto-calls the advisor for a final check on correctness, edge cases, and silent failures
+- **Complements verification**: tests check "does it work", the advisor checks "did we miss anything"
+- Make deliverables durable (save files) before this call — if the session ends during it, saved work persists
 
 #### Key Checkpoint: Plan → Execution Transition
 
