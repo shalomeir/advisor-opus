@@ -1,5 +1,5 @@
 ---
-description: Consult Claude Opus for strategic advice. If you are Claude Opus, do NOT auto-invoke — only respond to explicit /advise commands. For Haiku/Sonnet: aim for 2 calls per complex task, max 4. PLANNING (1 call) — for multi-step tasks (3+ steps, multi-file, architecture), call once before execution begins. COMPLETION (1 call) — when work is code-complete and about to be committed/PR'd/declared done. PIVOT (rare) — when changing approach mid-execution. REACTIVE (rare) — when stuck (same error 3+, edit-fail loop, 5+ tool calls). SKIP for trivial work. Manual /advise always works regardless of executor model.
+description: Consult Opus for strategic advice. Opus sessions — explicit /advise only. Sonnet/Haiku — auto-suggest at PLANNING (before execution), COMPLETION (before commit), PIVOT or REACTIVE (rare). Target 2 calls/task, max 4. Skip trivial work. Manual always works.
 argument-hint: '[question or context for the advisor]'
 context: fork
 allowed-tools: Agent, Bash
@@ -14,13 +14,18 @@ $ARGUMENTS
 
 ## Context Gathering (executor does this BEFORE spawning the advisor)
 
-The advisor cannot see your conversation. You must summarize and forward it. Build the context in three layers:
+The advisor starts with zero context — it cannot see your conversation at all. You must pass it everything it needs. Follow these three steps in order:
 
-1. **Task summary** (1-2 sentences): What is the overall goal of this session? What did the user ask for?
-2. **Key decisions and findings** (bullet points, compressed): What approaches were considered or tried? What worked, what failed? What was decided? Keep this concise — compress earlier history into key facts.
-3. **Recent context** (raw, uncompressed): The last 3-5 tool calls, their results, any recent errors, test outputs, or user messages — include these **verbatim**. This is the most critical part. The advisor needs to see exactly what just happened to give relevant advice.
+**Step 1 — Task summary** (1-2 sentences):
+Write what the user is trying to do. Example: "User is adding OAuth2 login to a Next.js app."
 
-Optionally, run `git diff --stat` and `git status` to include current working state.
+**Step 2 — Key facts** (bullet list, keep short):
+List what you know so far — files found, approaches tried, what worked/failed. Compress old history into short bullets.
+
+**Step 3 — Recent raw output** (copy-paste, do NOT summarize):
+Copy the last 3-5 tool results exactly as they appeared — file contents, grep results, error messages. The advisor needs the actual text, not your summary of it. If a tool returned 50 lines, include all 50 lines.
+
+Optional: run `git diff --stat` and `git status` to show current state.
 
 Structure the advisor prompt as:
 

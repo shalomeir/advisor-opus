@@ -1,5 +1,5 @@
 ---
-description: Have Claude Opus review code changes, architecture decisions, or implementation approach. If you are Claude Opus, do NOT auto-invoke — only respond to explicit /review commands. For Haiku/Sonnet: auto-suggest for complex multi-step tasks (3+ steps, multi-file changes) when work is code-complete — all files written, tests run, about to commit or declare done. Complements verification (tests check "does it work", advisor checks "did we miss anything"). SKIP for trivial changes. Manual /review always works regardless of executor model.
+description: Have Opus review code changes or architecture. Opus sessions — explicit /review only. Sonnet/Haiku — auto-suggest when code-complete (files written, tests run, about to commit). Complements tests ("does it work") with advisor ("did we miss anything"). Skip trivial changes. Manual always works.
 argument-hint: '[what to review — files, approach, architecture, etc.]'
 context: fork
 allowed-tools: Agent, Bash
@@ -14,13 +14,18 @@ $ARGUMENTS
 
 ## Context Gathering (executor does this BEFORE spawning the advisor)
 
-The advisor cannot see your conversation. You must build the full picture. Gather two types of context:
+The advisor starts with zero context — it cannot see your conversation at all. You must pass it everything it needs.
 
-### 1. Conversation context (three layers)
+### 1. Conversation context (three steps, follow in order)
 
-1. **Task summary** (1-2 sentences): What was the goal? What did the user ask for?
-2. **What was done** (bullet points, compressed): What approach was taken? Key decisions made? Files created/modified and why? Keep earlier steps compressed to essentials.
-3. **Recent context** (raw, uncompressed): The last 3-5 tool calls and results — especially test outputs, error messages, and the final state of implementation. Include these **verbatim**. The advisor needs to see exactly what happened to review accurately.
+**Step 1 — Task summary** (1-2 sentences):
+Write what the goal was. Example: "User asked to add rate limiting to the API endpoints."
+
+**Step 2 — What was done** (bullet list, keep short):
+List approach taken, key decisions, files created/modified and why. Compress into short bullets.
+
+**Step 3 — Recent raw output** (copy-paste, do NOT summarize):
+Copy the last 3-5 tool results exactly as they appeared — especially test outputs, error messages, and the final state. The advisor needs the actual text to review accurately. If a tool returned 50 lines, include all 50 lines.
 
 ### 2. Git diff context
 
@@ -29,7 +34,10 @@ The advisor cannot see your conversation. You must build the full picture. Gathe
 3. Run `git diff` to get the full diff (if very large, use `git diff --stat` summary only and list the top changed files)
 4. If there are staged changes, also run `git diff --cached`
 
-**If the working tree is clean and there are no staged changes**, stop here and tell the user: "No uncommitted changes found. Nothing to review. Commit your changes first, or specify files/topics to review via `/advisor-opus:review <target>`."
+**If the working tree is clean and there are no staged changes:**
+- If `$ARGUMENTS` is provided, skip the diff requirement and proceed with the review using the arguments as the review target (the user may want to review specific files, architecture, or an already-committed change).
+- If `$ARGUMENTS` is empty, try the last commit as fallback: run `git diff HEAD~1 --stat` and `git diff HEAD~1`. If that produces output, use it as the diff context and note to the advisor: "These are the changes from the most recent commit (already committed)."
+- Only if both `$ARGUMENTS` is empty AND `git diff HEAD~1` produces no useful output, tell the user: "No changes found to review. Try specifying a target: `/advisor-opus:review <file, topic, or commit range>`"
 
 Structure the advisor prompt as:
 

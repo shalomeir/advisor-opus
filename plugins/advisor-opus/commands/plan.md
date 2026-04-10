@@ -1,5 +1,5 @@
 ---
-description: Get Claude Opus to create a strategic implementation plan. If you are Claude Opus, do NOT auto-invoke — only respond to explicit /plan commands. For Haiku/Sonnet: auto-suggest for complex multi-step tasks (3+ steps, multi-file, architecture decisions) once before execution begins — after plan mode exit or after orientation if no plan mode. This is the PLANNING call — do not also call /advise separately for the same decision point. SKIP for trivial or single-step work. Manual /plan always works regardless of executor model.
+description: Get Opus to create an implementation plan. Opus sessions — explicit /plan only. Sonnet/Haiku — auto-suggest once before execution for complex tasks (3+ steps, multi-file). This IS the PLANNING call — don't also call /advise. Skip trivial work. Manual always works.
 argument-hint: '[what to plan — feature, refactor, migration, etc.]'
 context: fork
 allowed-tools: Agent, Bash
@@ -14,13 +14,18 @@ $ARGUMENTS
 
 ## Context Gathering (executor does this BEFORE spawning the advisor)
 
-The advisor cannot see your conversation. You must summarize and forward it. Build the context in three layers:
+The advisor starts with zero context — it cannot see your conversation at all. You must pass it everything it needs. Follow these three steps in order:
 
-1. **Task summary** (1-2 sentences): What is the user trying to build/change/fix?
-2. **What you've learned so far** (bullet points, compressed): Codebase structure, relevant files found, constraints discovered, technologies in use. Include key file paths. Keep earlier findings compressed to essentials.
-3. **Recent context** (raw, uncompressed): The last 3-5 tool calls and their results — file reads, grep results, exploration findings. Include these **verbatim**. The advisor needs to see exactly what you've discovered to plan accurately.
+**Step 1 — Task summary** (1-2 sentences):
+Write what the user wants to build, change, or fix. Example: "User wants to migrate the REST API from Express to Hono."
 
-Optionally, run `git diff --stat` and `git status` to show current state.
+**Step 2 — What you know** (bullet list, keep short):
+List codebase structure, relevant files, technologies, constraints. Include key file paths. Compress old findings into short bullets.
+
+**Step 3 — Recent raw output** (copy-paste, do NOT summarize):
+Copy the last 3-5 tool results exactly as they appeared — file contents, grep results, exploration findings. The advisor needs the actual text to plan accurately. If a tool returned 50 lines, include all 50 lines.
+
+Optional: run `git diff --stat` and `git status` to show current state.
 
 Structure the advisor prompt as:
 

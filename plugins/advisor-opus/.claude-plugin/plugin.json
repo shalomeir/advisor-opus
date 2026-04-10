@@ -1,7 +1,7 @@
 {
   "name": "advisor-opus",
   "version": "0.2.0",
-  "description": "Advisor Strategy for Claude Code — consult Claude Opus as a strategic advisor for planning, reviewing, and course-correcting mid-task.",
+  "description": "Advisor Strategy for Claude Code — use Opus-level thinking from Sonnet/Haiku sessions at critical decision points, without switching models.",
   "author": {
     "name": "shalomeir"
   }
